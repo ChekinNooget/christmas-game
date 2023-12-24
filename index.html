@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>click the button</title>
+</head>
+<style>
+    body{
+        width: 600px;
+    }
+    #header-text{
+        font-size: 5rem;
+    }
+    #header{
+        justify-content: center;
+        display: flex;
+        padding: 20px;
+    }
+    #main{
+        width: 100%;
+    }
+    #inputs{
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+    }
+    #inputs input{
+        width: 100%;
+        text-align: center;
+    }
+    #all-feedback{
+        width: 50%;
+    }
+</style>
+<body>
+    <div id="header">
+        <div id="header-text">hi</div>
+    </div> 
+    <div id="main">
+        <div id="inputs">
+            <div id="player-keys">
+                <div>Enter the keys that players will use. Example: zvm will be three players, using the z, v, and m keys.</div>
+                <input type="text" id="player-keys-input" onkeypress="return (event.charCode >= 97 && event.charCode <= 122)">
+            </div>
+            <button id="start-game" onclick="startGame()">Start Game</button>
+            <div id="all-feedback">
+                <div id="feedback"></div>
+                <div id="live-feedback"></div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+var keys = document.querySelector("#player-keys-input")
+var mainText = document.querySelector("#header-text")
+var feedback = document.querySelector("#feedback")
+var gameRunning = false
+var waitGamePress = false
+var whatGame = "wait"
+var keysArr = []
+var keysInfo = []
+var spamAmount = 0
+
+async function startGame(){
+    gameRunning = false
+    waitGamePress = false
+    keysInfo = []
+    spamAmount = 0
+    if (hasRepeats(keys.value)){
+        mainText.textContent = ":("
+        addText("Multiple people can't be the same key!")
+    } else if (keys.value.length < 2) {
+        mainText.textContent = ":("
+        addText("You need multiple people to play!")
+    } else {
+        mainText.textContent = "Ready?"
+        for (let i = 0; i < keys.value.length; i++) {
+            keysArr[i] = keys.value[i]
+        }
+        document.querySelector("#start-game").disabled = true
+        addText("<br>There are " + keysArr.length + " players. Ready?")
+        await delay(1000)
+        addText("3")
+        await delay(1000)
+        addText("2")
+        await delay(1000)
+        addText("1")
+        await delay(1000)
+        gameRunning = true
+        var gamesList = ["wait", "spam"]
+        whatGame = gamesList[Math.floor(Math.random() * gamesList.length)];
+        console.log(whatGame)
+        eval(whatGame + "Game()")
+        
+    }
+}
+function waitGame(){
+    keysInfo = keysArr.slice(0)
+    mainText.textContent = "Wait..."
+    addText("Press your key when it tells you to!")
+    setTimeout(() => {
+        waitGamePress = true
+        mainText.textContent = "Press!" 
+    }, Math.floor(Math.random()*3+2)*1000);
+}
+function spamGame(){
+    keysInfo = keysArr.slice(0)
+    for (let i = 0; i < keysInfo.length; i++) {
+        keysInfo[i] = 0
+    }
+    mainText.textContent = "Spam!"
+    spamAmount = Math.floor(Math.random()*20+10)
+    addText("First to " + spamAmount + " clicks wins!")
+}
+window.onkeydown = function(e){
+    if (gameRunning){
+        if (whatGame == "wait") {
+            for (let i = 0; i < keysArr.length; i++) {
+                if (e.key == keysArr[i]) {
+                    if (waitGamePress && keysInfo[i] != "0") {
+                        addText(keysArr[i] + " pressed first!")
+                        gameOver()
+                    } else {
+                        keysInfo[i] = "0"
+                        addText(keysArr[i] + " pressed too early!")
+                    }
+                    if (keysInfo.every( (val, i, arr) => val === arr[0] )) {
+                        addText("Everyone pressed too early! No one wins.")
+                        gameOver()
+                    }
+                }
+            }
+        } else if (whatGame == "spam") {
+            var temp = ""
+            for (let i = 0; i < keysArr.length; i++) {
+                if (e.key == keysArr[i]) {
+                    keysInfo[i] = keysInfo[i] + 1
+                    if (keysInfo[i] >= spamAmount) {
+                        temp = ""
+                        for (let i = 0; i < keysArr.length; i++) {
+                            temp = temp + keysInfo[i] + " "
+                        }
+                        addText(keysArr[i] + " won the game!")
+                        addText(temp)
+                        document.querySelector("#live-feedback").textContent = ""
+                        gameOver()
+                    }
+                }
+                if (gameRunning) {
+                    temp = temp + keysInfo[i] + " "
+                    document.querySelector("#live-feedback").textContent = temp    
+                }
+            }
+        }
+    }
+}
+function gameOver(){
+    document.querySelector("#start-game").disabled = false
+    gameRunning = false
+}
+function hasRepeats(str) {
+    return /(.).*\1/.test(str);
+}
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+function addText(text){
+    feedback.innerHTML += "<br>" + text.toString()
+}
+
+</script>
+</html>
