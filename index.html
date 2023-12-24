@@ -119,14 +119,16 @@ window.onkeydown = function(e){
             for (let i = 0; i < keysArr.length; i++) {
                 if (e.key == keysArr[i]) {
                     if (waitGamePress && keysInfo[i] != "0") {
-                        addText(keysArr[i] + " pressed first!")
+                        addText(keysArr[i] + " pressed first! They won!", "color:green")
                         gameOver()
                     } else {
+                        if (keysInfo[i] != 0) {
+                            addText(keysArr[i] + " pressed too early!", "color:red")
+                        }
                         keysInfo[i] = "0"
-                        addText(keysArr[i] + " pressed too early!")
                     }
                     if (keysInfo.every( (val, i, arr) => val === arr[0] )) {
-                        addText("Everyone pressed too early! No one wins.")
+                        addText("Everyone pressed too early! No one wins.", "color:grey")
                         gameOver()
                     }
                 }
@@ -139,17 +141,27 @@ window.onkeydown = function(e){
                     if (keysInfo[i] >= spamAmount) {
                         temp = ""
                         for (let i = 0; i < keysArr.length; i++) {
-                            temp = temp + keysInfo[i] + " "
+                            if (keysInfo[i] == Math.max(...keysInfo)) {
+                                temp = temp + "<div style='color:green'>" + keysArr[i] + ": " + keysInfo[i] + "</div>"
+                            } else {
+                                temp = temp + "<div style='color:red'>" + keysArr[i] + ": " + keysInfo[i] + "</div>"
+                            }
                         }
-                        addText(keysArr[i] + " won the game!")
+                        addText(keysArr[i] + " won the game!", "color:green")
                         addText(temp)
                         document.querySelector("#live-feedback").textContent = ""
                         gameOver()
                     }
                 }
+            }
+            for (let i = 0; i < keysArr.length; i++) {
                 if (gameRunning) {
-                    temp = temp + keysInfo[i] + " "
-                    document.querySelector("#live-feedback").textContent = temp    
+                    if (keysInfo[i] == Math.max(...keysInfo)) {
+                        temp = temp + "<div style='color:green'>" + keysArr[i] + ": " + keysInfo[i] + "</div>"
+                    } else{
+                        temp = temp + "<div style='color:red'>" + keysArr[i] + ": " + keysInfo[i] + "</div>"
+                    }
+                    document.querySelector("#live-feedback").innerHTML = temp
                 }
             }
         }
@@ -165,8 +177,12 @@ function hasRepeats(str) {
 function delay(time) {
   return new Promise(resolve => setTimeout(resolve, time));
 }
-function addText(text){
-    feedback.innerHTML += "<br>" + text.toString()
+function addText(text, style){
+    if (style) {
+        feedback.innerHTML += "<div style='" + style + "'>" + text.toString() + "</div>"
+    } else{
+        feedback.innerHTML += "<div>" + text.toString() + "</div>"
+    }
 }
 
 </script>
