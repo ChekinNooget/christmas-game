@@ -7,7 +7,11 @@
 </head>
 <style>
     body{
-        width: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
     }
     #header-text{
         font-size: 5rem;
@@ -18,7 +22,7 @@
         padding: 20px;
     }
     #main{
-        width: 100%;
+        width: 600px;
     }
     #inputs{
         justify-content: center;
@@ -153,7 +157,7 @@ window.onkeydown = function(e){
                         gameOver()
                     }
                 }
-            }
+            }//terrible code :3
             for (let i = 0; i < keysArr.length; i++) {
                 if (gameRunning) {
                     if (keysInfo[i] == Math.max(...keysInfo)) {
